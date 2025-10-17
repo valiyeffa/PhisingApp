@@ -1,145 +1,207 @@
-import React, { useState } from 'react';
-import { Mail, Send, Eye, MousePointer, AlertCircle, CheckCircle, Clock, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import {
+  Mail,
+  Send,
+  Eye,
+  MousePointer,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Trash2,
+} from "lucide-react";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function PhishingEmailDashboard() {
   const [emails, setEmails] = useState([
     {
       id: 1,
-      email: 'ali.mammadov@company.az',
-      message: 'Sistemə daxil olun və şifrənizi dəyişdirin',
-      sentAt: '2025-10-17 09:30',
-      status: 'clicked',
-      openedAt: '2025-10-17 09:35',
-      clickedAt: '2025-10-17 09:36'
+      email: "ali.mammadov@company.az",
+      message: "Sistemə daxil olun və şifrənizi dəyişdirin",
+      sentAt: "2025-10-17 09:30",
+      status: "clicked",
+      openedAt: "2025-10-17 09:35",
+      clickedAt: "2025-10-17 09:36",
     },
     {
       id: 2,
-      email: 'leyla.ibrahimova@company.az',
-      message: 'Yeni təhlükəsizlik yeniləməsi mövcuddur',
-      sentAt: '2025-10-17 08:15',
-      status: 'opened',
-      openedAt: '2025-10-17 08:20',
-      clickedAt: null
+      email: "leyla.ibrahimova@company.az",
+      message: "Yeni təhlükəsizlik yeniləməsi mövcuddur",
+      sentAt: "2025-10-17 08:15",
+      status: "opened",
+      openedAt: "2025-10-17 08:20",
+      clickedAt: null,
     },
     {
       id: 3,
-      email: 'rashad.hasanov@company.az',
-      message: 'Hesabınız müvəqqəti bloklanıb',
-      sentAt: '2025-10-17 07:45',
-      status: 'sent',
+      email: "rashad.hasanov@company.az",
+      message: "Hesabınız müvəqqəti bloklanıb",
+      sentAt: "2025-10-17 07:45",
+      status: "sent",
       openedAt: null,
-      clickedAt: null
-    }
+      clickedAt: null,
+    },
   ]);
 
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await axios.get("https://localhost:7017/sent-emails");
+        const formattedEmails = response.data.map((email, index) => ({
+          id: index + 1,
+          email: email,
+          message: "Instagram təhlükəsizlik yeniləməsi.",
+          sentAt: new Date().toLocaleString("az-AZ"), 
+          status: "sent", 
+          openedAt: null,
+          clickedAt: null,
+        }));
+        setEmails(formattedEmails);
+      } catch (error) {
+        console.error("Xəta baş verdi:", error);
+      }
+    };
+
+    fetchEmails();
+  }, []);
+
   const [formData, setFormData] = useState({
-    email: '',
-    message: ''
+    email: "",
   });
 
   const [showForm, setShowForm] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (formData.email && formData.message) {
+    if (formData.email) {
       const newEmail = {
-        id: emails.length + 1,
-        email: formData.email,
-        message: formData.message,
-        sentAt: new Date().toLocaleString('az-AZ', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-        status: 'sent',
-        openedAt: null,
-        clickedAt: null
+        toEmail: formData.email,
       };
-
-      setEmails(prev => [newEmail, ...prev]);
-      setFormData({ email: '', message: '' });
-      setShowForm(false);
+      const request = axios.post("https://localhost:7017/send", newEmail);
+      request
+        .then((response) => {
+          // console.log("Email göndərildi:", response.data);
+          Swal.fire({
+            title: "Uğurlu!",
+            text: "Emailə göndərildi!",
+            icon: "success",
+            preConfirm: () => {
+              setFormData({ email: "" }); // <- bu hissəni düzəltdim
+            },
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+          Swal.fire({
+            title: "Xəta",
+            text: "Xəta baş verdi!",
+            icon: "error",
+          });
+        });
     }
   };
 
   const handleDelete = (id) => {
-    setEmails(prev => prev.filter(email => email.id !== id));
+    setEmails((prev) => prev.filter((email) => email.id !== id));
   };
 
   const simulateOpen = (id) => {
-    setEmails(prev => prev.map(email => {
-      if (email.id === id && email.status === 'sent') {
-        return {
-          ...email,
-          status: 'opened',
-          openedAt: new Date().toLocaleString('az-AZ', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          })
-        };
-      }
-      return email;
-    }));
+    setEmails((prev) =>
+      prev.map((email) => {
+        if (email.id === id && email.status === "sent") {
+          return {
+            ...email,
+            status: "opened",
+            openedAt: new Date().toLocaleString("az-AZ", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          };
+        }
+        return email;
+      })
+    );
   };
 
   const simulateClick = (id) => {
-    setEmails(prev => prev.map(email => {
-      if (email.id === id && (email.status === 'opened' || email.status === 'sent')) {
-        return {
-          ...email,
-          status: 'clicked',
-          clickedAt: new Date().toLocaleString('az-AZ', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          }),
-          openedAt: email.openedAt || new Date().toLocaleString('az-AZ', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          })
-        };
-      }
-      return email;
-    }));
+    setEmails((prev) =>
+      prev.map((email) => {
+        if (
+          email.id === id &&
+          (email.status === "opened" || email.status === "sent")
+        ) {
+          return {
+            ...email,
+            status: "clicked",
+            clickedAt: new Date().toLocaleString("az-AZ", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            openedAt:
+              email.openedAt ||
+              new Date().toLocaleString("az-AZ", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+          };
+        }
+        return email;
+      })
+    );
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'sent':
-        return { text: 'Göndərilib', class: 'bg-blue-100 text-blue-700', icon: Clock };
-      case 'opened':
-        return { text: 'Açılıb', class: 'bg-yellow-100 text-yellow-700', icon: Eye };
-      case 'clicked':
-        return { text: 'Klik Edilib', class: 'bg-red-100 text-red-700', icon: MousePointer };
+      case "sent":
+        return {
+          text: "Göndərilib",
+          class: "bg-blue-100 text-blue-700",
+          icon: Clock,
+        };
+      case "opened":
+        return {
+          text: "Açılıb",
+          class: "bg-yellow-100 text-yellow-700",
+          icon: Eye,
+        };
+      case "clicked":
+        return {
+          text: "Klik Edilib",
+          class: "bg-red-100 text-red-700",
+          icon: MousePointer,
+        };
       default:
-        return { text: 'Naməlum', class: 'bg-gray-100 text-gray-700', icon: AlertCircle };
+        return {
+          text: "Naməlum",
+          class: "bg-gray-100 text-gray-700",
+          icon: AlertCircle,
+        };
     }
   };
 
   const stats = {
     total: emails.length,
-    sent: emails.filter(e => e.status === 'sent').length,
-    opened: emails.filter(e => e.status === 'opened').length,
-    clicked: emails.filter(e => e.status === 'clicked').length
+    sent: emails.filter((e) => e.status === "sent").length,
+    opened: emails.filter((e) => e.status === "opened").length,
+    clicked: emails.filter((e) => e.status === "clicked").length,
   };
 
   return (
@@ -153,8 +215,12 @@ export default function PhishingEmailDashboard() {
                 <Mail className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Phishing Email Göndərmə Sistemi</h1>
-                <p className="text-sm text-gray-500">Email göndər və nəticələri izlə</p>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Phishing Email Göndərmə Sistemi
+                </h1>
+                <p className="text-sm text-gray-500">
+                  Email göndər və nəticələri izlə
+                </p>
               </div>
             </div>
             <button
@@ -175,7 +241,9 @@ export default function PhishingEmailDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm mb-1">Ümumi</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.total}
+                </p>
               </div>
               <div className="bg-gray-100 p-3 rounded-lg">
                 <Mail className="w-6 h-6 text-gray-600" />
@@ -199,7 +267,9 @@ export default function PhishingEmailDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm mb-1">Açılıb</p>
-                <p className="text-3xl font-bold text-yellow-600">{stats.opened}</p>
+                <p className="text-3xl font-bold text-yellow-600">
+                  {stats.opened}
+                </p>
               </div>
               <div className="bg-yellow-100 p-3 rounded-lg">
                 <Eye className="w-6 h-6 text-yellow-600" />
@@ -211,7 +281,9 @@ export default function PhishingEmailDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm mb-1">Klik Edilib</p>
-                <p className="text-3xl font-bold text-red-600">{stats.clicked}</p>
+                <p className="text-3xl font-bold text-red-600">
+                  {stats.clicked}
+                </p>
               </div>
               <div className="bg-red-100 p-3 rounded-lg">
                 <MousePointer className="w-6 h-6 text-red-600" />
@@ -223,7 +295,9 @@ export default function PhishingEmailDashboard() {
         {/* Form */}
         {showForm && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Yeni Phishing Email Göndər</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Yeni Phishing Email Göndər
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -278,7 +352,9 @@ export default function PhishingEmailDashboard() {
         {/* Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">Göndərilmiş Emaillər</h2>
+            <h2 className="text-xl font-bold text-gray-900">
+              Göndərilmiş Emaillər
+            </h2>
           </div>
 
           <div className="overflow-x-auto">
@@ -312,30 +388,42 @@ export default function PhishingEmailDashboard() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <Mail className="w-4 h-4 text-gray-400 mr-2" />
-                          <span className="text-sm font-medium text-gray-900">{email.email}</span>
+                          <span className="text-sm font-medium text-gray-900">
+                            {email.email}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm text-gray-600 max-w-xs truncate">{email.message}</p>
+                        <p className="text-sm text-gray-600 max-w-xs truncate">
+                          {email.message}
+                        </p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-500">{email.sentAt}</span>
+                        <span className="text-sm text-gray-500">
+                          {email.sentAt}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusInfo.class}`}>
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusInfo.class}`}
+                        >
                           <StatusIcon className="w-3 h-3 mr-1" />
                           {statusInfo.text}
                         </span>
                         {email.openedAt && (
-                          <p className="text-xs text-gray-400 mt-1">Açılıb: {email.openedAt}</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Açılıb: {email.openedAt}
+                          </p>
                         )}
                         {email.clickedAt && (
-                          <p className="text-xs text-gray-400 mt-1">Klik: {email.clickedAt}</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Klik: {email.clickedAt}
+                          </p>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex space-x-2">
-                          {email.status === 'sent' && (
+                          {email.status === "sent" && (
                             <button
                               onClick={() => simulateOpen(email.id)}
                               className="text-yellow-600 hover:text-yellow-700 text-xs px-2 py-1 border border-yellow-600 rounded hover:bg-yellow-50"
@@ -344,7 +432,8 @@ export default function PhishingEmailDashboard() {
                               Açıldı
                             </button>
                           )}
-                          {(email.status === 'sent' || email.status === 'opened') && (
+                          {(email.status === "sent" ||
+                            email.status === "opened") && (
                             <button
                               onClick={() => simulateClick(email.id)}
                               className="text-red-600 hover:text-red-700 text-xs px-2 py-1 border border-red-600 rounded hover:bg-red-50"
@@ -371,7 +460,9 @@ export default function PhishingEmailDashboard() {
             {emails.length === 0 && (
               <div className="text-center py-12">
                 <Mail className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">Hələ heç bir email göndərilməyib</p>
+                <p className="text-gray-500">
+                  Hələ heç bir email göndərilməyib
+                </p>
               </div>
             )}
           </div>
