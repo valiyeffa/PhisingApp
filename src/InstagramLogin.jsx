@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import img from './instagram.jpg'
+import { useParams } from 'react-router';
+
 export default function InstagramLogin() {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const params = useParams();
 
     const screenshots = [img];
 
-    // Carousel effect
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % screenshots.length);
@@ -16,7 +18,6 @@ export default function InstagramLogin() {
         return () => clearInterval(interval);
     }, [screenshots.length]);
 
-    // Handle form submit
     const handleSubmit = (e) => {
         e.preventDefault();
 

