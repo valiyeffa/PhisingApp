@@ -49,7 +49,7 @@ export default function PhishingEmailDashboard() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (formData.email && formData.message) {
       const newEmail = {
         id: emails.length + 1,
@@ -182,7 +182,7 @@ export default function PhishingEmailDashboard() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
@@ -194,7 +194,7 @@ export default function PhishingEmailDashboard() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
@@ -206,7 +206,7 @@ export default function PhishingEmailDashboard() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
@@ -239,8 +239,8 @@ export default function PhishingEmailDashboard() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              
-              <div>
+
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Phishing Mesajı
                 </label>
@@ -253,8 +253,8 @@ export default function PhishingEmailDashboard() {
                   rows="4"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 />
-              </div>
-              
+              </div> */}
+
               <div className="flex space-x-3">
                 <button
                   type="submit"
@@ -280,7 +280,7 @@ export default function PhishingEmailDashboard() {
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">Göndərilmiş Emaillər</h2>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -306,7 +306,7 @@ export default function PhishingEmailDashboard() {
                 {emails.map((email) => {
                   const statusInfo = getStatusBadge(email.status);
                   const StatusIcon = statusInfo.icon;
-                  
+
                   return (
                     <tr key={email.id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -367,7 +367,7 @@ export default function PhishingEmailDashboard() {
                 })}
               </tbody>
             </table>
-            
+
             {emails.length === 0 && (
               <div className="text-center py-12">
                 <Mail className="w-12 h-12 text-gray-300 mx-auto mb-3" />
