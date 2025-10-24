@@ -5,7 +5,6 @@ import {
   Eye,
   MousePointer,
   AlertCircle,
-  CheckCircle,
   Clock,
   Trash2,
 } from "lucide-react";
@@ -13,35 +12,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 export default function PhishingEmailDashboard() {
-  const [emails, setEmails] = useState([
-    {
-      id: 1,
-      email: "ali.mammadov@company.az",
-      message: "Sistemə daxil olun və şifrənizi dəyişdirin",
-      sentAt: "2025-10-17 09:30",
-      status: "clicked",
-      openedAt: "2025-10-17 09:35",
-      clickedAt: "2025-10-17 09:36",
-    },
-    {
-      id: 2,
-      email: "leyla.ibrahimova@company.az",
-      message: "Yeni təhlükəsizlik yeniləməsi mövcuddur",
-      sentAt: "2025-10-17 08:15",
-      status: "opened",
-      openedAt: "2025-10-17 08:20",
-      clickedAt: null,
-    },
-    {
-      id: 3,
-      email: "rashad.hasanov@company.az",
-      message: "Hesabınız müvəqqəti bloklanıb",
-      sentAt: "2025-10-17 07:45",
-      status: "sent",
-      openedAt: null,
-      clickedAt: null,
-    },
-  ]);
+  const [emails, setEmails] = useState([]);
 
   useEffect(() => {
     const fetchEmails = async () => {
@@ -51,8 +22,8 @@ export default function PhishingEmailDashboard() {
           id: index + 1,
           email: email,
           message: "Instagram təhlükəsizlik yeniləməsi.",
-          sentAt: new Date().toLocaleString("az-AZ"), 
-          status: "sent", 
+          sentAt: new Date().toLocaleString("az-AZ"),
+          status: "sent",
           openedAt: null,
           clickedAt: null,
         }));
@@ -434,14 +405,14 @@ export default function PhishingEmailDashboard() {
                           )}
                           {(email.status === "sent" ||
                             email.status === "opened") && (
-                            <button
-                              onClick={() => simulateClick(email.id)}
-                              className="text-red-600 hover:text-red-700 text-xs px-2 py-1 border border-red-600 rounded hover:bg-red-50"
-                              title="Klik simulyasiyası"
-                            >
-                              Klik
-                            </button>
-                          )}
+                              <button
+                                onClick={() => simulateClick(email.id)}
+                                className="text-red-600 hover:text-red-700 text-xs px-2 py-1 border border-red-600 rounded hover:bg-red-50"
+                                title="Klik simulyasiyası"
+                              >
+                                Klik
+                              </button>
+                            )}
                           <button
                             onClick={() => handleDelete(email.id)}
                             className="text-gray-400 hover:text-red-600"
